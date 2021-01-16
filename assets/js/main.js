@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
     //Default variables
-    var companyRepositories = [], companyName = '';
+    var companyRepositories = [], companyName = '', repositoryIssues = [];
 
 
     //Event handler da pesquisa de repositories
@@ -12,7 +12,7 @@ $(document).ready(function(){
         $('.repository-details').addClass('d-none').hide();
 
         //Default value para testes em Dev
-        $('#companyName').val("apple");
+        $('#companyName').val("azure");
         var company = $('#companyName').val();
 
         saveCompany(company);
@@ -20,6 +20,11 @@ $(document).ready(function(){
         //Faz um GET e renderiza os repositórios
         getRepositories(company);
 
+    });
+
+    $('#filter-issues').click(function(e){
+        e.preventDefault();
+        filterIssues();
     });
 
 });
@@ -70,6 +75,11 @@ function saveCompany(name) {
     companyName = name;
 }
 
+//Salva os issues do repositório localmente
+function saveIssues(issues) {
+    repositoryIssues = issues;
+}
+
 //Exibe detalhes do repositório selecionado
 function repositoryDetails(repoID) {
 
@@ -81,9 +91,10 @@ function repositoryDetails(repoID) {
         }
     });
 
-    console.log(repository);
+    // console.log(repository);
 
     getContributors(companyName, repository.name);
+    getIssues(companyName, repository.name);
     
     $('.repository-name').html(repository.full_name);
     
@@ -186,4 +197,67 @@ function renderContributors(contributors) {
 
     $('.list-contributors').html(html);
 
+}
+
+//GET Issues
+function getIssues(companyName, repo){
+
+    axios.get(`https://api.github.com/repos/${companyName}/${repo}/issues`, {
+        params: {
+            per_page : 100,
+            page: 1,
+            state: 'all'
+        }
+    })
+        .then(response => {
+            var issues = response.data;
+
+            saveIssues(issues);
+            renderIssues(issues);
+
+    })
+        .catch(error => {
+            console.log(error)
+    })
+}
+
+//Filtra issues por state
+function filterIssues() {
+
+    var filter = $('#issueState').val();
+    var filtered = [];
+
+    if(filter !== 'all'){
+
+        repositoryIssues.forEach(function(issue){
+            if(issue.state === filter ){
+                filtered.push(issue);
+            }
+        });
+
+    }else{
+        filtered = repositoryIssues;
+    }
+    
+    renderIssues(filtered);
+}
+
+
+//Renderiza os issues
+function renderIssues(data){
+    var html = '';
+
+    if(data.length > 0){
+        data.forEach(function(issue) {
+
+            html += '<tr>';
+            html += '<td>' + issue.number + '</td>';
+            html += '<td>' + issue.title + '</td>';
+            html += '<td>' + issue.state +'</td>';
+            html += '</tr>';
+
+        })
+    }
+
+    $('.table-issues tbody').html(html);
 }

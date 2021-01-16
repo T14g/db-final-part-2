@@ -69,39 +69,25 @@
                   <form class="form-inline mb-2 mt-4">
                     <div class="form-group">
                       <label for="issueStatus" class="font-weight-bold">Status</label>
-                      <select class="form-control mr-2 ml-2" id="issueStatus">
-                        <option>Todos</option>
-                        <option>Open</option>
-                        <option>Closed</option>
+                      <select class="form-control mr-2 ml-2" id="issueState">
+                        <option value="all">Todos</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
                       </select>
                     </div>
-                    <button type="submit" class="btn btn-info" id="search-repos">Filtrar</button>
+                    <button type="submit" class="btn btn-info" id="filter-issues">Filtrar</button>
                   </form>
-                    <table class="table table-bordered">
-                        <thead>
-                          <tr>
-                            <th scope="col">Número</th>
-                            <th scope="col">Issue</th>
-                            <th scope="col">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th scope="row">1</th>
-                            <td>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident impedit, blanditiis eaque minus earum quibusdam voluptatibus sapiente vel maiores at cumque soluta odit error. Maxime laudantium blanditiis possimus quasi explicabo?</td>
-                            <td>Open</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">2</th>
-                            <td>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident impedit, blanditiis eaque minus earum quibusdam voluptatibus sapiente vel maiores at cumque soluta odit error. Maxime laudantium blanditiis possimus quasi explicabo?</td>
-                            <td>Open</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">3</th>
-                            <td>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident impedit, blanditiis eaque minus earum quibusdam voluptatibus sapiente vel maiores at cumque soluta odit error. Maxime laudantium blanditiis possimus quasi explicabo?</td>
-                            <td>Closed</td>
-                          </tr>
-                        </tbody>
+                    <table class="table table-bordered table-issues">
+                      <thead>
+                        <tr>
+                          <th scope="col">Número</th>
+                          <th scope="col">Issue</th>
+                          <th scope="col">State</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      <!-- Issues will appear here -->
+                      </tbody>
                       </table>
                 </div>
             </div>
