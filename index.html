@@ -66,6 +66,17 @@
                 </div>
 
                 <div class="tab-pane fade" id="issues" role="tabpanel" aria-labelledby="issues-tab">
+                  <form class="form-inline mb-2 mt-4">
+                    <div class="form-group">
+                      <label for="issueStatus" class="font-weight-bold">Status</label>
+                      <select class="form-control mr-2 ml-2" id="issueStatus">
+                        <option>Todos</option>
+                        <option>Open</option>
+                        <option>Closed</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn btn-info" id="search-repos">Filtrar</button>
+                  </form>
                     <table class="table table-bordered">
                         <thead>
                           <tr>
