@@ -66,29 +66,46 @@
                 </div>
 
                 <div class="tab-pane fade" id="issues" role="tabpanel" aria-labelledby="issues-tab">
-                  <form class="form-inline mb-2 mt-4">
-                    <div class="form-group">
-                      <label for="issueStatus" class="font-weight-bold">Status</label>
-                      <select class="form-control mr-2 ml-2" id="issueState">
-                        <option value="all">Todos</option>
-                        <option value="open">Open</option>
-                        <option value="closed">Closed</option>
-                      </select>
-                    </div>
-                    <button type="submit" class="btn btn-info" id="filter-issues">Filtrar</button>
-                  </form>
+
+                  <div class="issues-list">
+                    <form class="form-inline mb-2 mt-4">
+                      <div class="form-group">
+                        <label for="issueStatus" class="font-weight-bold">Status</label>
+                        <select class="form-control mr-2 ml-2" id="issueState">
+                          <option value="all">Todos</option>
+                          <option value="open">Open</option>
+                          <option value="closed">Closed</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-info" id="filter-issues">Filtrar</button>
+                    </form>
+  
                     <table class="table table-bordered table-issues">
+  
                       <thead>
                         <tr>
                           <th scope="col">Número</th>
                           <th scope="col">Issue</th>
                           <th scope="col">State</th>
+                          <th scope="col">Action</th>
                         </tr>
                       </thead>
+  
                       <tbody>
                       <!-- Issues will appear here -->
                       </tbody>
-                      </table>
+                    </table>
+                  </div>
+
+                  <div class="issue-details d-none mt-2">
+                    <h4 class="border-bottom border-gray pb-2 mb-0 details-issue-title"></h4>
+                    <p class="details-issue-description"></p>
+                    <h6 class="border-bottom border-gray pb-2 mb-0">Comentários</h6>
+          
+                    <div class="issue-comments-container">
+                    <!-- Issue comments will appear here  -->
+                    </div>
+                  </div>
                 </div>
             </div>
         </div>

@@ -99,6 +99,8 @@ function repositoryDetails(repoID) {
     $('.repository-name').html(repository.full_name);
     
     $('.table-repositories').hide();
+    $('.issue-details').hide();
+    $('.issues-list').show();
     $('.repository-details').removeClass('d-none').show();
 
 }
@@ -152,7 +154,7 @@ function renderContributors(contributors) {
     var limit = 0;
 
     if(contributors.over_500.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-danger font-weight-bold">Acima de 500 contribuíções</a>';
+        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-danger font-weight-bold">Acima de 500 contribuições</a>';
 
         contributors.over_500.forEach(function(contributor) {
             if(limit < 20) {
@@ -163,7 +165,7 @@ function renderContributors(contributors) {
     }
 
     if(contributors.over_200.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-warning font-weight-bold">Acima de 200 contribuíções</a>';
+        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-warning font-weight-bold">Acima de 200 contribuições</a>';
 
         contributors.over_200.forEach(function(contributor) {
             if(limit < 20) {
@@ -174,7 +176,7 @@ function renderContributors(contributors) {
     }
 
     if(contributors.over_100.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-success font-weight-bold">Acima de 100 contribuíções</a>';
+        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-success font-weight-bold">Acima de 100 contribuições</a>';
 
         contributors.over_100.forEach(function(contributor) {
             if(limit < 20) {
@@ -243,7 +245,7 @@ function filterIssues() {
 }
 
 
-//Renderiza os issues
+//Renderiza os itens da lista de issues
 function renderIssues(data){
     var html = '';
 
@@ -253,11 +255,74 @@ function renderIssues(data){
             html += '<tr>';
             html += '<td>' + issue.number + '</td>';
             html += '<td>' + issue.title + '</td>';
-            html += '<td>' + issue.state +'</td>';
+            html += '<td>' + issue.state + '</td>';
+            html += '<td><button class="btn btn-success w-100" onClick="issueDetails(' + issue.number + ')">Detalhes</button></td>';
             html += '</tr>';
 
         })
     }
 
     $('.table-issues tbody').html(html);
+}
+
+//Mostra os detalhes de uma issue
+function issueDetails(issueNumber) {
+
+    var selected = {};
+
+    repositoryIssues.forEach(function(issue){
+        if(issue.number === issueNumber){
+            selected = issue;
+        }
+    })
+
+
+    getIssueComments(selected.comments_url);
+
+    var issueTitle = '#' + selected.number + ' ' + selected.title;
+
+    $('.details-issue-title').html(issueTitle);
+    $('.details-issue-description').html(selected.body);
+
+    $('.issues-list').hide();
+    $('.issue-details').removeClass('d-none').show();
+
+
+}
+
+//GET comentários de uma issue
+function getIssueComments(url) {
+
+    axios.get(url, {
+        params: {
+            per_page : 100,
+            page: 1
+        }
+    })
+        .then(response => {
+            renderComments(response.data);
+    })
+        .catch(error => {
+            console.log(error)
+    })
+}
+
+//Renderiza os comentários da issue
+function renderComments(data) {
+
+    var html = '';
+
+    if(data.length > 0) {
+        data.forEach(function(issue){
+            console.log(issue);
+            html += '<div class="pt-3">';
+            html += '<p class="pb-3 mb-0 small border-bottom border-gray">';
+            html += '<strong class="d-block text-gray-dark">@' + issue.user.login + '</strong>';
+            html += issue.body;
+            html +='</p></div>';
+        })
+    }
+
+    $('.issue-comments-container').html(html);
+
 }
