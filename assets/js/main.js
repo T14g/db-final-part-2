@@ -4,12 +4,13 @@ $(document).ready(function(){
     var companyRepositories = [], companyName = '', repositoryIssues = [];
 
 
-    //Event handler da pesquisa de repositories
+    //Event handlers
     $('#search-repos').click(function(e){
         e.preventDefault();
 
         $('.table-repositories').show();
         $('.repository-details').addClass('d-none').hide();
+        $('#close-issue-details').hide();
 
         //Default value para testes em Dev
         $('#companyName').val("azure");
@@ -26,6 +27,24 @@ $(document).ready(function(){
         e.preventDefault();
         filterIssues();
     });
+    
+    $('#back-repositories').click(function(){
+        $('.repository-details').hide();
+        $('#close-issue-details').hide();
+        $('.table-repositories').show();
+    });
+
+    $('#close-issue-details').click(function(){
+        $('.issues-list').show();
+        $('.issue-details').hide();
+        $(this).hide();
+    });
+
+    $('.nav-link').click(function(){
+        $('#close-issue-details').hide();
+        $('.issues-list').show();
+        $('.issue-details').hide();
+    });
 
 });
 
@@ -37,13 +56,15 @@ function getRepositories(company){
             per_page : 100
         }
     })
-        .then(response => {
+        .then(function(response) {
+            
             var repos = response.data;
             saveRepositories(repos);
             renderRepositories(repos);
     })
-        .catch(error => {
-            console.log(error)
+        .catch(function(error) {
+            console.log(error);
+            alert("Algo deu errado, confira se o nome da company está correto.")
     });
 }
 
@@ -51,7 +72,7 @@ function getRepositories(company){
 //Renderiza os repositórios na tabela de repositórios
 function renderRepositories(data) {
 
-    let html = '';
+    var html = '';
 
     data.map(repo => {
         html += '<tr>';
@@ -91,7 +112,6 @@ function repositoryDetails(repoID) {
         }
     });
 
-    // console.log(repository);
 
     getContributors(companyName, repository.name);
     getIssues(companyName, repository.name);
@@ -114,11 +134,11 @@ function getContributors(companyName, repo){
             page: 1
         }
     })
-        .then(response => {
+        .then(function(response) {
             var data = response.data;
             separateContributors(data);
     })
-        .catch(error => {
+        .catch(function(error) {
             console.log(error)
     })
 }
@@ -154,44 +174,44 @@ function renderContributors(contributors) {
     var limit = 0;
 
     if(contributors.over_500.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-danger font-weight-bold">Acima de 500 contribuições</a>';
+        html += '<a class="list-group-item list-group-item-action list-group-item-danger font-weight-bold">Acima de 500 contribuições</a>';
 
         contributors.over_500.forEach(function(contributor) {
             if(limit < 20) {
-                html += '<a href="#" class="list-group-item list-group-item-action list-group-item-danger">' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
+                html += '<a class="list-group-item list-group-item-action list-group-item-danger">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
     if(contributors.over_200.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-warning font-weight-bold">Acima de 200 contribuições</a>';
+        html += '<a class="list-group-item list-group-item-action list-group-item-warning font-weight-bold">Acima de 200 contribuições</a>';
 
         contributors.over_200.forEach(function(contributor) {
             if(limit < 20) {
-                html += '<a href="#" class="list-group-item list-group-item-action list-group-item-warning">' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
+                html += '<a class="list-group-item list-group-item-action list-group-item-warning">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
     if(contributors.over_100.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action list-group-item-success font-weight-bold">Acima de 100 contribuições</a>';
+        html += '<a class="list-group-item list-group-item-action list-group-item-success font-weight-bold">Acima de 100 contribuições</a>';
 
         contributors.over_100.forEach(function(contributor) {
             if(limit < 20) {
-                html += '<a href="#" class="list-group-item list-group-item-action list-group-item-success">' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
+                html += '<a class="list-group-item list-group-item-action list-group-item-success">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
     if(contributors.others.length > 0 && limit < 20){
-        html += '<a href="#" class="list-group-item list-group-item-action font-weight-bold">Outros contribuidores</a>';
+        html += '<a class="list-group-item list-group-item-action font-weight-bold">Outros contribuidores</a>';
 
         contributors.others.forEach(function(contributor) {
             if(limit < 20) {
-                html += '<a href="#" class="list-group-item list-group-item-action ">' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
+                html += '<a class="list-group-item list-group-item-action ">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
@@ -211,14 +231,14 @@ function getIssues(companyName, repo){
             state: 'all'
         }
     })
-        .then(response => {
+        .then(function(response) {
             var issues = response.data;
 
             saveIssues(issues);
             renderIssues(issues);
 
     })
-        .catch(error => {
+        .catch(function(error) {
             console.log(error)
     })
 }
@@ -286,7 +306,7 @@ function issueDetails(issueNumber) {
 
     $('.issues-list').hide();
     $('.issue-details').removeClass('d-none').show();
-
+    $('#close-issue-details').removeClass('d-none').show();
 
 }
 
@@ -299,10 +319,10 @@ function getIssueComments(url) {
             page: 1
         }
     })
-        .then(response => {
+        .then(function(response) {
             renderComments(response.data);
     })
-        .catch(error => {
+        .catch(function(error) {
             console.log(error)
     })
 }
@@ -314,13 +334,15 @@ function renderComments(data) {
 
     if(data.length > 0) {
         data.forEach(function(issue){
-            console.log(issue);
+
             html += '<div class="pt-3">';
             html += '<p class="pb-3 mb-0 small border-bottom border-gray">';
             html += '<strong class="d-block text-gray-dark">@' + issue.user.login + '</strong>';
             html += issue.body;
             html +='</p></div>';
         })
+    }else if(data.length === 0){
+        html += '<p class="pb-3">Sem comentários.</p>'
     }
 
     $('.issue-comments-container').html(html);
