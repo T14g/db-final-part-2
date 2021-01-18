@@ -1,0 +1,60 @@
+.details-issue-description, .details-issue-title{
+    overflow: auto;
+}
+
+.repository-details-title{
+    font-size: 20px;
+}
+
+@media(max-width: 575px){
+
+    .details-issue-title{
+        font-size: 20px;
+    }
+
+    .search-container .search-title{
+        font-size: 24px;
+    }
+
+    .search-container #company-name {
+        margin-right: 0 !important;
+    }
+
+    .search-container #search-repos {
+        width: 100%;
+    }
+
+    .group-issue-state label{
+        float: left;
+        line-height: 31px;
+        display: block !important;
+        margin-right: 10px;
+    }
+
+    .group-issue-state label{
+        float: left;
+        line-height: 31px;
+        display: block !important;
+        margin-right: 10px;
+    }
+
+    .group-issue-state select{
+        float: left;
+        margin-left: 0 !important;
+        display: block;
+        width: 108px;
+    }
+
+    .group-issue-state #filter-issues{
+        float: left;
+        display: block;
+    }
+}
+
+@media(max-width: 517px) {
+    #close-issue-details,
+    #back-repositories {
+        width: 100%;
+        display: block;
+    }
+}

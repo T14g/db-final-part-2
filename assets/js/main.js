@@ -13,8 +13,8 @@ $(document).ready(function(){
         $('#close-issue-details').hide();
 
         //Default value para testes em Dev
-        $('#companyName').val("azure");
-        var company = $('#companyName').val();
+        $('#company-name').val("azure");
+        var company = $('#company-name').val();
 
         saveCompany(company);
 
@@ -51,7 +51,9 @@ $(document).ready(function(){
 //Faz um GET retornando os repositórios e chama a renderRepositories()
 function getRepositories(company){
 
-    axios.get(`https://api.github.com/orgs/${company}/repos`, {
+    var url = 'https://api.github.com/orgs/' + company + '/repos';
+
+    axios.get(url, {
         params: {
             per_page : 100
         }
@@ -127,6 +129,8 @@ function repositoryDetails(repoID) {
 
 //GET contribuidores
 function getContributors(companyName, repo){
+
+    var url = 'https://api.github.com/repos/' + companyName + '/' + repo + '/contributors';
 
     axios.get(`https://api.github.com/repos/${companyName}/${repo}/contributors`, {
         params: {
@@ -224,7 +228,9 @@ function renderContributors(contributors) {
 //GET Issues
 function getIssues(companyName, repo){
 
-    axios.get(`https://api.github.com/repos/${companyName}/${repo}/issues`, {
+    var url = 'https://api.github.com/repos/' + companyName + '/' + repo + '/issues';
+
+    axios.get(url, {
         params: {
             per_page : 100,
             page: 1,
@@ -246,7 +252,7 @@ function getIssues(companyName, repo){
 //Filtra issues por state
 function filterIssues() {
 
-    var filter = $('#issueState').val();
+    var filter = $('#issue-state').val();
     var filtered = [];
 
     if(filter !== 'all'){
@@ -295,7 +301,6 @@ function issueDetails(issueNumber) {
             selected = issue;
         }
     })
-
 
     getIssueComments(selected.comments_url);
 
