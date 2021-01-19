@@ -19,7 +19,7 @@ O projeto roda diretamente no Google Chrome ou Firefox abrindo o index.html
 
 ## Coisas que não foram pedidas mas resolvi implementar
 - Funcionalidade Load More( carregar mais ) repositórios
-- Exibe contribuidores com menos de 100 contribuições caso a soma dos outros 3 esteja abaixo de 20 contribuídores.
+- Exibe contribuidores com menos de 100 contribuições caso a soma dos outros 3 esteja abaixo de 20 contribuidores.
 
 ## O que acontece
 
@@ -29,6 +29,6 @@ Também é possível usar o recurso "Carregar mais" , que tenta carregar mais re
 
 Ao clicar em detalhes o usuário verá os colaboradores do repositório agrupados por número de contribuições.
 Também verá uma aba chamada Issues onde ele pode ver os Issues daquele repositório, podendo filtrar issues por state.
-Na listagem de issues é possível abrir a mesma e ver sua descrição e seus comentários. 
+Na listagem de issues é possível abrir a Issue e ver sua descrição e seus comentários. 
 O usuário pode fechar os detalhes da issue e voltar a listagem de issues ou ir para a listagem de repositórios inicial com o botão de retornar a listagem de repositórios.
 
