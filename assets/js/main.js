@@ -1,46 +1,51 @@
-$(document).ready(function(){
+var app = { repositories: [], companyName: '', issues: [] };
 
-    //Default variables
-    var companyRepositories = [], companyName = '', repositoryIssues = [];
+$(document).ready(function () {
 
-
-    //Event handlers
-    $('#search-repos').click(function(e){
+    //Event handler pesquisa de repositórios
+    $('#search-repos').click(function (e) {
         e.preventDefault();
 
         $('.table-repositories').show();
-        $('.repository-details').addClass('d-none').hide();
+        $('.repository-details').hide();
         $('#close-issue-details').hide();
 
-        //Default value para testes em Dev
-        $('#company-name').val("azure");
         var company = $('#company-name').val();
 
+        //Salva o nome da company no app
         saveCompany(company);
+
+        //Limpa table de repositórios 
+        $('.table-repositories tbody').html("");
 
         //Faz um GET e renderiza os repositórios
         getRepositories(company);
 
     });
 
-    $('#filter-issues').click(function(e){
+    //Handler da filtragem de issues
+    $('#filter-issues').click(function (e) {
         e.preventDefault();
         filterIssues();
     });
-    
-    $('#back-repositories').click(function(){
+
+    //Volta a exibir a listagem inicial de repositórios
+    $('#back-repositories').click(function () {
         $('.repository-details').hide();
         $('#close-issue-details').hide();
+        $('.search-container').show();
         $('.table-repositories').show();
     });
 
-    $('#close-issue-details').click(function(){
+    //Fecha os detalhes da issue mostrando a listagem de issues
+    $('#close-issue-details').click(function () {
         $('.issues-list').show();
         $('.issue-details').hide();
         $(this).hide();
     });
 
-    $('.nav-link').click(function(){
+    //Fecha os detalhes da issue mostrando a listagem de issues
+    $('.nav-link').click(function () {
         $('#close-issue-details').hide();
         $('.issues-list').show();
         $('.issue-details').hide();
@@ -48,26 +53,32 @@ $(document).ready(function(){
 
 });
 
-//Faz um GET retornando os repositórios e chama a renderRepositories()
-function getRepositories(company){
+//Faz um GET retornando os repositórios
+function getRepositories(company) {
 
     var url = 'https://api.github.com/orgs/' + company + '/repos';
 
     axios.get(url, {
         params: {
-            per_page : 100
+            per_page: 100
         }
     })
-        .then(function(response) {
-            
+        .then(function (response) {
+
             var repos = response.data;
+
+            //Salva no app
             saveRepositories(repos);
+
+            //Renderiza os repositórios na table
             renderRepositories(repos);
-    })
-        .catch(function(error) {
+
+            $('.repositories-container').removeClass('d-none').show();
+        })
+        .catch(function (error) {
             console.log(error);
-            alert("Algo deu errado, confira se o nome da company está correto.")
-    });
+            toastr.error("Algo deu errado, confira se o nome da company está correto.")
+        });
 }
 
 
@@ -88,19 +99,19 @@ function renderRepositories(data) {
 
 }
 
-//Salva os repositórios da company localmente
+//Salva os repositórios da company no app
 function saveRepositories(repos) {
-    companyRepositories = repos;
+    app.repositories = repos;
 }
 
-//Salva o nome da company
+//Salva o nome da company no app
 function saveCompany(name) {
-    companyName = name;
+    app.companyName = name;
 }
 
-//Salva os issues do repositório localmente
+//Salva os issues do repositório no app
 function saveIssues(issues) {
-    repositoryIssues = issues;
+    app.issues = issues;
 }
 
 //Exibe detalhes do repositório selecionado
@@ -108,61 +119,64 @@ function repositoryDetails(repoID) {
 
     var repository = {};
 
-    companyRepositories.forEach(function(repo){
-        if(repo.id === repoID) {
+    app.repositories.forEach(function (repo) {
+        if (repo.id === repoID) {
             repository = repo;
         }
     });
 
+    //Faz um GET dos contribuidores do repositório
+    getContributors(app.companyName, repository.name);
 
-    getContributors(companyName, repository.name);
-    getIssues(companyName, repository.name);
-    
+    //Faz um GET das issues do repositório
+    getIssues(app.companyName, repository.name);
+
     $('.repository-name').html(repository.full_name);
-    
     $('.table-repositories').hide();
     $('.issue-details').hide();
+    $('.search-container').hide();
     $('.issues-list').show();
     $('.repository-details').removeClass('d-none').show();
 
 }
 
 //GET contribuidores
-function getContributors(companyName, repo){
+function getContributors(company, repo) {
 
-    var url = 'https://api.github.com/repos/' + companyName + '/' + repo + '/contributors';
+    var url = 'https://api.github.com/repos/' + company + '/' + repo + '/contributors';
 
-    axios.get(`https://api.github.com/repos/${companyName}/${repo}/contributors`, {
+    axios.get(`https://api.github.com/repos/${company}/${repo}/contributors`, {
         params: {
-            per_page : 100,
+            per_page: 100,
             page: 1
         }
     })
-        .then(function(response) {
+        .then(function (response) {
             var data = response.data;
+
             separateContributors(data);
-    })
-        .catch(function(error) {
+        })
+        .catch(function (error) {
             console.log(error)
-    })
+        })
 }
 
 //Separa os contribuidores por número de contribuições
-function separateContributors(data){
+function separateContributors(data) {
 
-    var result = { over_100 : [], over_200: [], over_500: [], others : [] };
+    var result = { over_100: [], over_200: [], over_500: [], others: [] };
 
-    data.forEach(function(contributor){
+    data.forEach(function (contributor) {
 
-        if(contributor.contributions > 100 && contributor.contributions < 200){
+        if (contributor.contributions > 100 && contributor.contributions < 200) {
             result.over_100.push(contributor);
 
-        }else if(contributor.contributions > 200 && contributor.contributions < 500){
+        } else if (contributor.contributions > 200 && contributor.contributions < 500) {
             result.over_200.push(contributor);
 
-        }else if(contributor.contributions > 500){
+        } else if (contributor.contributions > 500) {
             result.over_500.push(contributor);
-        }else{
+        } else {
             result.others.push(contributor);
         }
 
@@ -172,49 +186,53 @@ function separateContributors(data){
 
 }
 
-//Renderiza os contribuidores
+//Renderiza os contribuidores, limite de 20 contribuidores
 function renderContributors(contributors) {
-    var html  = '';
+    var html = '';
     var limit = 0;
 
-    if(contributors.over_500.length > 0 && limit < 20){
+    //Acima de 500
+    if (contributors.over_500.length > 0 && limit < 20) {
         html += '<a class="list-group-item list-group-item-action list-group-item-danger font-weight-bold">Acima de 500 contribuições</a>';
 
-        contributors.over_500.forEach(function(contributor) {
-            if(limit < 20) {
+        contributors.over_500.forEach(function (contributor) {
+            if (limit < 20) {
                 html += '<a class="list-group-item list-group-item-action list-group-item-danger">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
-    if(contributors.over_200.length > 0 && limit < 20){
+    //Acima de 200
+    if (contributors.over_200.length > 0 && limit < 20) {
         html += '<a class="list-group-item list-group-item-action list-group-item-warning font-weight-bold">Acima de 200 contribuições</a>';
 
-        contributors.over_200.forEach(function(contributor) {
-            if(limit < 20) {
+        contributors.over_200.forEach(function (contributor) {
+            if (limit < 20) {
                 html += '<a class="list-group-item list-group-item-action list-group-item-warning">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
-    if(contributors.over_100.length > 0 && limit < 20){
+    //Acima de 100
+    if (contributors.over_100.length > 0 && limit < 20) {
         html += '<a class="list-group-item list-group-item-action list-group-item-success font-weight-bold">Acima de 100 contribuições</a>';
 
-        contributors.over_100.forEach(function(contributor) {
-            if(limit < 20) {
+        contributors.over_100.forEach(function (contributor) {
+            if (limit < 20) {
                 html += '<a class="list-group-item list-group-item-action list-group-item-success">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
         })
     }
 
-    if(contributors.others.length > 0 && limit < 20){
-        html += '<a class="list-group-item list-group-item-action font-weight-bold">Outros contribuidores</a>';
+    //Abaixo de 100
+    if (contributors.others.length > 0 && limit < 20) {
+        html += '<a class="list-group-item list-group-item-action font-weight-bold">Abaixo de 100 contribuições</a>';
 
-        contributors.others.forEach(function(contributor) {
-            if(limit < 20) {
+        contributors.others.forEach(function (contributor) {
+            if (limit < 20) {
                 html += '<a class="list-group-item list-group-item-action ">@' + contributor.login + ' com ' + contributor.contributions + ' contribuições.</a>';
                 limit++;
             }
@@ -226,27 +244,28 @@ function renderContributors(contributors) {
 }
 
 //GET Issues
-function getIssues(companyName, repo){
+function getIssues(companyName, repo) {
 
     var url = 'https://api.github.com/repos/' + companyName + '/' + repo + '/issues';
 
     axios.get(url, {
         params: {
-            per_page : 100,
+            per_page: 100,
             page: 1,
             state: 'all'
         }
     })
-        .then(function(response) {
+        .then(function (response) {
             var issues = response.data;
 
             saveIssues(issues);
+
             renderIssues(issues);
 
-    })
-        .catch(function(error) {
+        })
+        .catch(function (error) {
             console.log(error)
-    })
+        })
 }
 
 //Filtra issues por state
@@ -255,28 +274,28 @@ function filterIssues() {
     var filter = $('#issue-state').val();
     var filtered = [];
 
-    if(filter !== 'all'){
+    if (filter !== 'all') {
 
-        repositoryIssues.forEach(function(issue){
-            if(issue.state === filter ){
+        app.issues.forEach(function (issue) {
+            if (issue.state === filter) {
                 filtered.push(issue);
             }
         });
 
-    }else{
-        filtered = repositoryIssues;
+    } else {
+        filtered = app.issues;
     }
-    
+
     renderIssues(filtered);
 }
 
 
 //Renderiza os itens da lista de issues
-function renderIssues(data){
+function renderIssues(data) {
     var html = '';
 
-    if(data.length > 0){
-        data.forEach(function(issue) {
+    if (data.length > 0) {
+        data.forEach(function (issue) {
 
             html += '<tr>';
             html += '<td>' + issue.number + '</td>';
@@ -296,8 +315,8 @@ function issueDetails(issueNumber) {
 
     var selected = {};
 
-    repositoryIssues.forEach(function(issue){
-        if(issue.number === issueNumber){
+    app.issues.forEach(function (issue) {
+        if (issue.number === issueNumber) {
             selected = issue;
         }
     })
@@ -320,16 +339,18 @@ function getIssueComments(url) {
 
     axios.get(url, {
         params: {
-            per_page : 100,
+            per_page: 100,
             page: 1
         }
     })
-        .then(function(response) {
+        .then(function (response) {
+
             renderComments(response.data);
-    })
-        .catch(function(error) {
+
+        })
+        .catch(function (error) {
             console.log(error)
-    })
+        })
 }
 
 //Renderiza os comentários da issue
@@ -337,16 +358,16 @@ function renderComments(data) {
 
     var html = '';
 
-    if(data.length > 0) {
-        data.forEach(function(issue){
+    if (data.length > 0) {
+        data.forEach(function (issue) {
 
             html += '<div class="pt-3">';
             html += '<p class="pb-3 mb-0 small border-bottom border-gray">';
             html += '<strong class="d-block text-gray-dark">@' + issue.user.login + '</strong>';
             html += issue.body;
-            html +='</p></div>';
+            html += '</p></div>';
         })
-    }else if(data.length === 0){
+    } else if (data.length === 0) {
         html += '<p class="pb-3">Sem comentários.</p>'
     }
 

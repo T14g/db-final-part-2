@@ -1,4 +1,4 @@
-.details-issue-description, .details-issue-title{
+.details-issue-description, .details-issue-title, details, .issue-comments-container p{
     overflow: auto;
 }
 
