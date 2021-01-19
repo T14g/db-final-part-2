@@ -1,4 +1,4 @@
-var app = { repositories: [], companyName: '', issues: [] };
+var app = { repositories: [], companyName: '', issues: [], repPage: 1 };
 
 $(document).ready(function () {
 
@@ -11,6 +11,9 @@ $(document).ready(function () {
         $('#close-issue-details').hide();
 
         var company = $('#company-name').val();
+
+        //Limpa os dados salvos
+        cleanAPP();
 
         //Salva o nome da company no app
         saveCompany(company);
@@ -35,6 +38,12 @@ $(document).ready(function () {
         $('#close-issue-details').hide();
         $('.search-container').show();
         $('.table-repositories').show();
+        $('#load-more-repos').show();
+    });
+
+    //Carrega mais repositórios
+    $('#load-more-repos').click(function () {
+        loadMoreRepos();
     });
 
     //Fecha os detalhes da issue mostrando a listagem de issues
@@ -53,6 +62,24 @@ $(document).ready(function () {
 
 });
 
+//Carrega mais repositórios
+function loadMoreRepos() {
+
+    app.repPage = app.repPage + 1;
+    getRepositories(app.companyName);
+
+}
+
+//Limpa dados do app 
+function cleanAPP() {
+
+    app.repositories = [];
+    app.companyName = '';
+    app.issues = []
+    app.repPage = 1;
+
+}
+
 //Faz um GET retornando os repositórios
 function getRepositories(company) {
 
@@ -60,7 +87,8 @@ function getRepositories(company) {
 
     axios.get(url, {
         params: {
-            per_page: 100
+            per_page: 100,
+            page: app.repPage
         }
     })
         .then(function (response) {
@@ -71,29 +99,35 @@ function getRepositories(company) {
             saveRepositories(repos);
 
             //Renderiza os repositórios na table
-            renderRepositories(repos);
+            renderRepositories();
 
             $('.repositories-container').removeClass('d-none').show();
         })
         .catch(function (error) {
             console.log(error);
-            toastr.error("Algo deu errado, confira se o nome da company está correto.")
+            $('.repositories-container').hide();
+            toastr.error("Algo deu errado, confira se o nome da company está correto.");
         });
 }
 
 
 //Renderiza os repositórios na tabela de repositórios
-function renderRepositories(data) {
+function renderRepositories() {
 
     var html = '';
 
-    data.map(repo => {
-        html += '<tr>';
-        html += '<td>' + repo.id + '</td>';
-        html += '<td>' + repo.full_name + '</td>';
-        html += '<td><button class="btn btn-success w-100" onClick="repositoryDetails(' + repo.id + ')">Detalhes</button></td>';
-        html += '</tr>';
-    })
+    if (app.repositories.length > 0) {
+
+        app.repositories.map(repo => {
+            html += '<tr>';
+            html += '<td>' + repo.id + '</td>';
+            html += '<td>' + repo.full_name + '</td>';
+            html += '<td><button class="btn btn-success w-100" onClick="repositoryDetails(' + repo.id + ')">Detalhes</button></td>';
+            html += '</tr>';
+        })
+
+    }
+
 
     $('.table-repositories tbody').html(html);
 
@@ -101,7 +135,13 @@ function renderRepositories(data) {
 
 //Salva os repositórios da company no app
 function saveRepositories(repos) {
-    app.repositories = repos;
+
+    if (repos.length > 0) {
+        repos.forEach(function (repo) {
+            app.repositories.push(repo);
+        })
+    }
+
 }
 
 //Salva o nome da company no app
@@ -133,6 +173,7 @@ function repositoryDetails(repoID) {
 
     $('.repository-name').html(repository.full_name);
     $('.table-repositories').hide();
+    $('#load-more-repos').hide();
     $('.issue-details').hide();
     $('.search-container').hide();
     $('.issues-list').show();
